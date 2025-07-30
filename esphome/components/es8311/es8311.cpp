@@ -108,7 +108,6 @@ bool ES8311::configure_clock_() {
   uint32_t mclk_frequency = this->sample_frequency_ * this->mclk_multiple_;
   if (!this->use_mclk_) {
     reg01 |= BIT(7);  // Use SCLK
-    mclk_frequency = this->sample_frequency_ * (int) this->resolution_out_ * 2;
   }
   if (this->mclk_inverted_) {
     reg01 |= BIT(6);  // Invert MCLK pin
