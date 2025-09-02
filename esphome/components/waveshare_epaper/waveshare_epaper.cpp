@@ -332,10 +332,11 @@ void HOT WaveshareEPaperBWR::draw_absolute_pixel_internal(int x, int y, Color co
 
   const uint32_t buf_half_len = this->get_buffer_length_() / 2u;
 
-  const uint32_t pos = (x + y * this->get_width_internal()) / 8u;
+  const uint32_t pos = (x + y * this->get_width_controller()) / 8u; // fix position calculation
   const uint8_t subpos = x & 0x07;
+
   // flip logic
-  if (color.is_on()) {
+  if (!color.is_on()) {
     this->buffer_[pos] |= 0x80 >> subpos;
   } else {
     this->buffer_[pos] &= ~(0x80 >> subpos);

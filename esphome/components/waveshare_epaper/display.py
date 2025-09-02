@@ -122,6 +122,9 @@ WaveshareEPaper2P13InV3 = waveshare_epaper_ns.class_(
 WaveshareEPaper13P3InK = waveshare_epaper_ns.class_(
     "WaveshareEPaper13P3InK", WaveshareEPaper
 )
+WeActEPaper2P13InC3 = waveshare_epaper_ns.class_(
+    "WeActEPaper2P13InC3", WaveshareEPaperBWR
+)
 GDEW0154M09 = waveshare_epaper_ns.class_("GDEW0154M09", WaveshareEPaper)
 
 WaveshareEPaperTypeAModel = waveshare_epaper_ns.enum("WaveshareEPaperTypeAModel")
@@ -170,6 +173,7 @@ MODELS = {
     "7.50in-hd-b": ("b", WaveshareEPaper7P5InHDB),
     "2.13in-ttgo-dke": ("c", WaveshareEPaper2P13InDKE),
     "2.13inv3": ("c", WaveshareEPaper2P13InV3),
+    "2.13inc3": ("c", WeActEPaper2P13InC3),
     "1.54in-m5coreink-m09": ("b", GDEW0154M09),
     "13.3in-k": ("b", WaveshareEPaper13P3InK),
 }
