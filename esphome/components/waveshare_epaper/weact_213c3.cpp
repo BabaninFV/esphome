@@ -72,13 +72,13 @@ int WeActEPaper2P13InC3::get_height_internal() { return 250; }
 uint32_t WeActEPaper2P13InC3::idle_timeout_() { return 2500; }
 
 void WeActEPaper2P13InC3::dump_config() {
-  LOG_DISPLAY("", "WeAct E-Paper (3 Color)", this)
+  LOG_DISPLAY("", "WeAct E-Paper (3 Color)", this);
   ESP_LOGCONFIG(TAG, "  Model: 2.13in Red+Black");
-  LOG_PIN("  CS Pin: ", this->cs_)
-  LOG_PIN("  Reset Pin: ", this->reset_pin_)
-  LOG_PIN("  DC Pin: ", this->dc_pin_)
-  LOG_PIN("  Busy Pin: ", this->busy_pin_)
-  LOG_UPDATE_INTERVAL(this)
+  LOG_PIN("  CS Pin: ", this->cs_);
+  LOG_PIN("  Reset Pin: ", this->reset_pin_);
+  LOG_PIN("  DC Pin: ", this->dc_pin_);
+  LOG_PIN("  Busy Pin: ", this->busy_pin_);
+  LOG_UPDATE_INTERVAL(this);
 }
 
 /************************************************************************/
