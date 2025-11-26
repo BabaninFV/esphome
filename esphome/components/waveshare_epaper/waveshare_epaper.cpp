@@ -4751,5 +4751,142 @@ void WaveshareEPaper13P3InK::dump_config() {
   LOG_UPDATE_INTERVAL(this);
 }
 
+// ========================================================
+//  Weact 3.7in E-Paper (UC8253) BW
+//  Datasheet/Specification/Reference:
+//  - https://github.com/WeActStudio/WeActStudio.EpaperModule
+// ========================================================
+void WeactEPaper3P7In::reset_() {
+  ESP_LOGD(TAG, "Resetting ePaper...");
+
+  if (this->reset_pin_ != nullptr) {
+    this->reset_pin_->digital_write(false);
+    delay(20);
+    this->reset_pin_->digital_write(true);
+    delay(20);
+  }
+}
+
+void WeactEPaper3P7In::update_() {
+  ESP_LOGD(TAG, "Updating ePaper...");
+
+  this->command(UC8253_POWERON);
+  this->wait_until_idle_();
+  this->command(UC8253_DISPLAYREFRESH);
+  this->wait_until_idle_();
+}
+
+void WeactEPaper3P7In::init_display_() {
+  this->reset_();
+  this->wait_until_idle_();
+
+  this->command(UC8253_PANELSETTING);
+  this->data(0x1F);
+  this->data(0x0D);
+
+  this->command(UC8253_CASCADE_SETTING);
+  this->data(0x02);
+}
+
+void WeactEPaper3P7In::init_full_() {
+  this->init_display_();
+
+  this->command(UC8253_FORCE_TEMP);
+  this->data(0x5F);
+
+  this->command(UC8253_VCOM_CDI);
+  this->data(0xD7);
+
+  ESP_LOGD(TAG, "Initialized full mode");
+}
+
+void WeactEPaper3P7In::init_partial_() {
+  this->init_display_();
+
+  this->command(UC8253_FORCE_TEMP);
+  this->data(0x6E);
+
+  this->command(UC8253_VCOM_CDI);
+  this->data(0xD7);
+
+  ESP_LOGD(TAG, "Initialized partial mode");
+}
+
+void WeactEPaper3P7In::initialize() {
+  // old buffer for partial update
+  RAMAllocator<uint8_t> allocator;
+  this->old_buffer_ = allocator.allocate(this->get_buffer_length_());
+  if (this->old_buffer_ == nullptr) {
+    ESP_LOGE(TAG, "Could not allocate old buffer for display!");
+    return;
+  }
+  for (size_t i = 0; i < this->get_buffer_length_(); i++) {
+    this->old_buffer_[i] = 0xFF;
+  }
+}
+
+uint32_t WeactEPaper3P7In::get_buffer_length_() {
+  return (this->get_width_controller() / 8) * this->get_height_internal();
+}
+
+void HOT WeactEPaper3P7In::display() {
+  bool partial = this->at_update_ != 0;
+  this->at_update_ = (this->at_update_ + 1) % this->full_update_every_;
+
+  if (partial) {
+    ESP_LOGI(TAG, "Performing to partial e-paper update.");
+  } else {
+    ESP_LOGI(TAG, "Performing to full e-paper update.");
+  }
+
+  if (!partial) {
+    this->init_full_();
+    this->wait_until_idle_();
+  } else {
+    this->init_partial_();
+  }
+
+  // input old buffer data
+  this->command(UC8253_WRITE_RAM1);
+  this->start_data_();
+  for (size_t i = 0; i < this->get_buffer_length_(); i++) {
+    this->write_byte(this->old_buffer_[i]);
+  }
+  this->end_data_();
+
+  // input new buffer data
+  this->command(UC8253_WRITE_RAM2);
+  this->start_data_();
+  for (size_t i = 0; i < this->get_buffer_length_(); i++) {
+    this->write_byte(this->buffer_[i]);
+    this->old_buffer_[i] = this->buffer_[i];
+  }
+  this->end_data_();
+
+  this->update_();
+  this->deep_sleep();
+
+  ESP_LOGI(TAG, "Completed e-paper update.");
+}
+
+int WeactEPaper3P7In::get_width_internal() { return 240; }
+int WeactEPaper3P7In::get_height_internal() { return 416; }
+
+uint32_t WeactEPaper3P7In::idle_timeout_() { return 5000; }
+
+void WeactEPaper3P7In::dump_config() {
+  LOG_DISPLAY("", "Weact E-Paper", this);
+  ESP_LOGCONFIG(TAG, "  Model: 3.7inDKE");
+  LOG_PIN("  CS Pin: ", this->cs_);
+  LOG_PIN("  Reset Pin: ", this->reset_pin_);
+  LOG_PIN("  DC Pin: ", this->dc_pin_);
+  LOG_PIN("  Busy Pin: ", this->busy_pin_);
+  LOG_UPDATE_INTERVAL(this);
+}
+
+void WeactEPaper3P7In::set_full_update_every(uint32_t full_update_every) {
+  this->full_update_every_ = full_update_every;
+}
+
 }  // namespace waveshare_epaper
 }  // namespace esphome

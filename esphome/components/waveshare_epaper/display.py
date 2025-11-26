@@ -125,6 +125,9 @@ WaveshareEPaper13P3InK = waveshare_epaper_ns.class_(
 WeActEPaper2P13InC3 = waveshare_epaper_ns.class_(
     "WeActEPaper2P13InC3", WaveshareEPaperBWR
 )
+WeactEPaper3P7In = waveshare_epaper_ns.class_(
+    "WeactEPaper3P7In", WaveshareEPaper
+)
 GDEW0154M09 = waveshare_epaper_ns.class_("GDEW0154M09", WaveshareEPaper)
 
 WaveshareEPaperTypeAModel = waveshare_epaper_ns.enum("WaveshareEPaperTypeAModel")
@@ -176,6 +179,7 @@ MODELS = {
     "2.13inc3": ("c", WeActEPaper2P13InC3),
     "1.54in-m5coreink-m09": ("b", GDEW0154M09),
     "13.3in-k": ("b", WaveshareEPaper13P3InK),
+    "3.7in-uc8253-bw": ("b", WeactEPaper3P7In),
 }
 
 RESET_PIN_REQUIRED_MODELS = ("2.13inv2", "2.13in-ttgo-b74")

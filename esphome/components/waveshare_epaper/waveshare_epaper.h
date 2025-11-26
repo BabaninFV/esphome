@@ -1127,5 +1127,53 @@ class WaveshareEPaper13P3InK : public WaveshareEPaper {
   uint32_t idle_timeout_() override;
 };
 
+class WeactEPaper3P7In : public WaveshareEPaper {
+ public:
+  void initialize() override;
+
+  void display() override;
+
+  void dump_config() override;
+
+  void deep_sleep() override {
+    this->command(UC8253_POWEROFF);
+    this->wait_until_idle_();
+    this->command(UC8253_DEEPSLEEP);
+    this->data(0xA5);
+  }
+
+  void set_full_update_every(uint32_t full_update_every);
+
+ protected:
+  int get_width_internal() override;
+  int get_height_internal() override;
+
+  uint32_t get_buffer_length_() override;
+  uint32_t idle_timeout_() override;
+
+  uint32_t full_update_every_{30};
+  uint32_t at_update_{0};
+
+ private:
+  static const uint8_t UC8253_PANELSETTING = 0x00;
+  static const uint8_t UC8253_POWEROFF = 0x02;
+  static const uint8_t UC8253_POWERON = 0x04;
+  static const uint8_t UC8253_DEEPSLEEP = 0x07;
+  static const uint8_t UC8253_DISPLAYREFRESH = 0x12;
+  static const uint8_t UC8253_WRITE_RAM1 = 0x10;
+  static const uint8_t UC8253_WRITE_RAM2 = 0x13;
+  static const uint8_t UC8253_VCOM_CDI = 0x50;
+  static const uint8_t UC8253_CASCADE_SETTING = 0xE0;
+  static const uint8_t UC8253_FORCE_TEMP = 0xE5;
+
+  uint8_t *old_buffer_{nullptr};
+
+  void reset_();
+  void update_();
+  void init_display_();
+  void init_full_();
+  void init_partial_();
+};
+
 }  // namespace waveshare_epaper
 }  // namespace esphome
